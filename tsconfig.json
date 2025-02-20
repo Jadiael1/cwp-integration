@@ -1,0 +1,68 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2017",
+    "sourceMap": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@middlewares/*": [
+        "./src/common/middlewares/*"
+      ],
+      "@decorators/*": [
+        "./src/common/decorators/*"
+      ],
+      "@filters/*": [
+        "./src/common/filters/*"
+      ],
+      "@enums/*": [
+        "./src/common/enums/*"
+      ],
+      "@interfaces/*": [
+        "./src/common/interfaces/*"
+      ],
+      "@dtos/*": [
+        "./src/account/dto/*",
+        "./src/util/dto/*"
+      ],
+      "@services/*": [
+        "./src/common/services/*",
+        "./src/juvhost/*",
+        "./src/account/*",
+        "./src/util/*",
+        "./src/*"
+      ],
+      "@modules/*": [
+        "./src/account/*",
+        "./src/util/*",
+        "./src/common/*",
+        "./src/http/*",
+        "./src/juvhost/*",
+        "./src/*"
+      ],
+      "@controllers/*": [
+        "./src/account/*",
+        "./src/util/*",
+      ]
+    }
+  },
+  "include": [
+    "./src/*"
+  ],
+  "exclude": [
+    "./node_modules/*",
+    "./dist/*"
+  ]
+}

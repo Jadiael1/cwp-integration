@@ -21,6 +21,7 @@ import * as Joi from 'joi';
         REDIS_URL: Joi.string().required(),
         USER_BOARD: Joi.string().default('admin'),
         PASS_BOARD: Joi.string().default('password'),
+        API_TOKEN: Joi.string().required(),
       }),
       validationOptions: {
         abortEarly: false, // Retorna todos os erros de uma só vez

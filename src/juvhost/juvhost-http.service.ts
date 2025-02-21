@@ -8,7 +8,6 @@ export class JuvHostHttpService {
   constructor(@Inject('juvHostHttp') private http: Http) {}
 
   async createAccount(postData: AccountDTO): Promise<SimpleResponse> {
-    const endpoint = 'account';
     const newPostData = Object.entries(postData).reduce(
       (acc, [key, value]) => {
         acc[key] = String(value);
@@ -17,7 +16,7 @@ export class JuvHostHttpService {
       {} as Record<string, string>,
     );
     const payload = new URLSearchParams(newPostData);
-    const response = await this.http.post(endpoint, payload, {
+    const response = await this.http.post(postData.api_url, payload, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },

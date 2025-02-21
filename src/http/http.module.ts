@@ -5,7 +5,6 @@ import { Agent } from 'https';
 import { Http } from './http';
 
 const juvHostInstance = axios.create({
-  baseURL: process.env.NODE_ENV === 'production' ? process.env.CWP_API_PROD : process.env.CWP_API_DEV,
   headers: {
     'Content-Type': 'application/json',
   },

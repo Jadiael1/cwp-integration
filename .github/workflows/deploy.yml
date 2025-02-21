@@ -56,15 +56,15 @@ jobs:
           target: '${{ secrets.VPS_APP_DIR }}/node_modules'
 
       - name: Move Contents Of Dist Folder To VPS_APP_DIR
-        uses: appleboy/scp-action@v0.1.6
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            mv ${{ secrets.VPS_APP_DIR }}/dist/{*,.[!.]*,..?*} "${{ secrets.VPS_APP_DIR }}"
-            rm -rf ${{ secrets.VPS_APP_DIR }}/dist
+            mv "${{ secrets.VPS_APP_DIR }}/dist/"{*,.[!.]*,..?*} "${{ secrets.VPS_APP_DIR }}"
+            rm -rf "${{ secrets.VPS_APP_DIR }}/dist"
 
       - name: Create Environments Variables
         uses: appleboy/ssh-action@v0.1.7

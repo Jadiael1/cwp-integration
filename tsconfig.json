@@ -55,6 +55,9 @@
       "@controllers/*": [
         "./src/account/*",
         "./src/util/*",
+      ],
+      "@common/guards/*":[
+        "./src/common/guards/*",
       ]
     }
   },

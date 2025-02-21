@@ -56,7 +56,7 @@ jobs:
           target: '${{ secrets.VPS_APP_DIR }}/node_modules'
 
       - name: Move Contents Of Dist Folder To VPS_APP_DIR
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}

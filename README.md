@@ -1,5 +1,7 @@
 # CWP Integration API
 
+**Sistema em Produção**: https://cwp-integration.juvhost.com/
+
 **CWP Integration API** é um projeto NestJS desenvolvido para atuar como API intermediária entre o plugin WordPress **cwp_woo** e o painel CWP. Através deste serviço, quando uma compra é finalizada ou concluida no WooCommerce, o plugin cwp_woo aciona essa API para criar uma conta no CWP de forma assíncrona e segura.
 
 ## Visão Geral

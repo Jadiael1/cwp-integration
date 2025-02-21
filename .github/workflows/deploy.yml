@@ -24,7 +24,7 @@ jobs:
 
       - name: Build Application
         run: npm run build
-      
+
       - name: Clean VPS directory
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -53,7 +53,7 @@ jobs:
           key: ${{ secrets.VPS_KEY }}
           port: ${{ secrets.VPS_PORT }}
           source: 'node_modules/**'
-          target: '${{ secrets.VPS_APP_DIR }}/node_modules'
+          target: '${{ secrets.VPS_APP_DIR }}'
 
       - name: Move Contents Of Dist Folder To VPS_APP_DIR
         uses: appleboy/ssh-action@v0.1.7
@@ -74,5 +74,5 @@ jobs:
           key: ${{ secrets.VPS_KEY }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            echo ${{ secrets.ENV_DEV }} > ${{ secrets.VPS_APP_DIR }}/.env.dev
-            echo ${{ secrets.ENV_PROD }} > ${{ secrets.VPS_APP_DIR }}/.env.prod
+            printf "%s" "${{ secrets.ENV_DEV }}" > "${{ secrets.VPS_APP_DIR }}/.env.dev"
+            printf "%s" "${{ secrets.ENV_PROD }}" > "${{ secrets.VPS_APP_DIR }}/.env.prod"

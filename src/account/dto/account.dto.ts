@@ -97,4 +97,18 @@ export class AccountDTO {
     required: true,
   })
   server_ips: string;
+
+  @ApiProperty({
+    description: 'API url',
+    example: 'https://srv1.yourdomain.com:2304/v1/account',
+    required: true,
+  })
+  api_url: string;
+
+  @ApiProperty({
+    description: 'Intermediary api url',
+    example: 'https://cwp-integration.yourdomain.com/api/v1/account',
+    required: true,
+  })
+  intermediate_api_url: string;
 }

@@ -37,7 +37,7 @@ const queueConfig = BullModule.forRootAsync({
       //   type: 'exponential',
       //   delay: 10000,
       // },
-      delay: 6000,
+      delay: 10000,
     },
   }),
   inject: [ConfigService],

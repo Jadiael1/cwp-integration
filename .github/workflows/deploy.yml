@@ -28,10 +28,10 @@ jobs:
       - name: Clean VPS directory
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          port: ${{ secrets.VPS_PORT }}
           script: |
             find ${{ secrets.VPS_APP_DIR }} -mindepth 1 -exec rm -rf {} +
 
@@ -48,10 +48,10 @@ jobs:
       - name: Create Environments Variables
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          port: ${{ secrets.VPS_PORT }}
           script: |
             echo ${{ secrets.ENV_DEV }} > ${{ secrets.VPS_APP_DIR }}/.env.dev
             echo ${{ secrets.ENV_PROD }} > ${{ secrets.VPS_APP_DIR }}/.env.prod

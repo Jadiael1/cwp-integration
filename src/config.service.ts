@@ -4,48 +4,51 @@ import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as expressBasicAuth from 'express-basic-auth';
+import { ConfigService } from '@nestjs/config';
 
-const ormOptionMysql = TypeOrmModule.forRoot({
-  name: process.env.NODE_ENV == 'production' ? process.env.DB_CONNECTION_NAME_PROD : process.env.DB_CONNECTION_NAME_DEV,
-  type: 'mariadb',
-  host: process.env.NODE_ENV == 'production' ? process.env.DB_HOST_PROD : process.env.DB_HOST_DEV,
-  port: process.env.NODE_ENV == 'production' ? parseInt(process.env.DB_PORT_PROD) : parseInt(process.env.DB_PORT_DEV),
-  username: process.env.NODE_ENV == 'production' ? process.env.DB_USERNAME_PROD : process.env.DB_USERNAME_DEV,
-  password: process.env.NODE_ENV == 'production' ? process.env.DB_PASSWORD_PROD : process.env.DB_PASSWORD_DEV,
-  database: process.env.NODE_ENV == 'production' ? process.env.DB_NAME_PROD : process.env.DB_NAME_DEV,
-  synchronize: false,
-} as TypeOrmModuleOptions);
-
-const queueConfig = BullModule.forRoot({
-  connection: {
-    host: process.env.NODE_ENV == 'production' ? process.env.REDIS_HOST_PROD : process.env.REDIS_HOST_DEV,
-    port:
-      process.env.NODE_ENV == 'production'
-        ? parseInt(process.env.REDIS_PORT_PROD)
-        : parseInt(process.env.REDIS_PORT_DEV),
-    username: process.env.NODE_ENV == 'production' ? process.env.REDIS_USERNAME_PROD : process.env.REDIS_USERNAME_DEV,
-    password: process.env.NODE_ENV == 'production' ? process.env.REDIS_PASSWORD_PROD : process.env.REDIS_PASSWORD_DEV,
-  },
-  defaultJobOptions: {
-    removeOnComplete: 900000,
-    removeOnFail: 900000,
-    // attempts: 3,
-    // backoff: {
-    //   type: 'exponential',
-    //   delay: 10000,
-    // },
-    delay: 6000,
-  },
+const ormOptionMysql = TypeOrmModule.forRootAsync({
+  useFactory: (configService: ConfigService) =>
+    ({
+      name: configService.get<string>('DB_CONNECTION_NAME'),
+      type: 'mariadb',
+      host: configService.get<string>('DB_HOST'),
+      port: parseInt(configService.get<string>('DB_PORT')),
+      username: configService.get<string>('DB_USERNAME'),
+      password: configService.get<string>('DB_PASSWORD'),
+      database: configService.get<string>('DB_NAME'),
+      synchronize: false,
+    }) as TypeOrmModuleOptions,
+  inject: [ConfigService],
 });
 
-const userBoard = process.env.NODE_ENV == 'production' ? process.env.USER_BOARD_PROD : process.env.USER_BOARD_DEV;
-const passBoard = process.env.NODE_ENV == 'production' ? process.env.PASS_BOARD_PROD : process.env.PASS_BOARD_DEV;
+const queueConfig = BullModule.forRootAsync({
+  useFactory: (configService: ConfigService) => ({
+    connection: {
+      host: configService.get<string>('REDIS_HOST'),
+      port: parseInt(configService.get<string>('REDIS_PORT'), 10),
+      username: configService.get<string>('REDIS_USERNAME'),
+      password: configService.get<string>('REDIS_PASSWORD'),
+    },
+    defaultJobOptions: {
+      removeOnComplete: 900000,
+      removeOnFail: 900000,
+      // attempts: 3,
+      // backoff: {
+      //   type: 'exponential',
+      //   delay: 10000,
+      // },
+      delay: 6000,
+    },
+  }),
+  inject: [ConfigService],
+});
+
 const bullBoardConfig = BullBoardModule.forRoot({
   route: '/queues',
   adapter: ExpressAdapter,
   middleware: [
     expressBasicAuth({
-      users: { [userBoard]: passBoard },
+      users: { [process.env.USER_BOARD]: process.env.PASS_BOARD },
       challenge: true,
     }),
   ],

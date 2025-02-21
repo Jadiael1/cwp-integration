@@ -26,6 +26,7 @@ export class JuvHostHttpService {
     }
     return {
       success: true,
+      status: "OK",
       message: response.data.msj || 'CWP account created successfully',
       data: response.data,
     };

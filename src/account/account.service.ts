@@ -6,12 +6,13 @@ import * as moment from 'moment-timezone';
 import { JobDTO, JobFilterType, JobReturnType, JobStatus } from '@dtos/job.dto';
 import * as XLSX from 'xlsx';
 import { AccountDTO } from '@dtos/account.dto';
+import { SimpleResponse } from '@interfaces/simple-response.interface';
 
 @Injectable()
 export class AccountService {
   constructor(@InjectBullMQ(QUEUE_ACCOUNT) private bullMQQueue: Queue) {}
 
-  async create(account: AccountDTO): Promise<any[]> {
+  async create(account: AccountDTO): Promise<SimpleResponse> {
     await this.bullMQQueue.add(
       'create-account-cwp',
       {
@@ -21,13 +22,12 @@ export class AccountService {
         timestamp: moment().tz('America/Recife').valueOf(),
       },
     );
-    return [
-      {
-        success: true,
-        message: 'Account creation job created successfully',
-        data: null,
-      },
-    ];
+    return {
+      success: true,
+      status: 'OK',
+      message: 'Account creation job created successfully',
+      data: null,
+    };
   }
 
   async getJobs(query: JobDTO) {

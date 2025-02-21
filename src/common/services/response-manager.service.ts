@@ -8,6 +8,7 @@ export class ResponseManagerService {
       setledResult.status === 'rejected'
         ? setledResult?.reason?.response ?? {
             success: false,
+            status: "Error",
             data: null,
             error: setledResult?.reason,
             message: setledResult?.reason?.message || setledResult?.reason?.msj || 'Unknown error',

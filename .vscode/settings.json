@@ -1,0 +1,12 @@
+{
+    // "editor.defaultFormatter": "vscode.typescript-language-features",
+    // "[typescript]": {
+    //     "editor.defaultFormatter": "vscode.typescript-language-features"
+    // },
+    "jest.autoRun": {
+        "watch": false
+    },
+    "yaml.schemas": {
+        "https://json.schemastore.org/github-workflow.json": ".github\\workflows\\deploy.yml"
+    }
+}

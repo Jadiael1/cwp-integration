@@ -1,10 +1,10 @@
-import { Controller, Post, Body, Query, HttpCode, Get, HttpStatus, Res } from '@nestjs/common';
+import { Controller, Post, Body, Query, HttpCode, Get, HttpStatus, Res, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiQuery, ApiResponse } from '@nestjs/swagger';
-
 import { AccountService } from '@services/account.service';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { JobDTO, JobFilterType, JobStatus, JobReturnType } from '@dtos/job.dto';
 import { AccountDTO } from '@dtos/account.dto';
+import { TokenGuard } from '@common/guards/token.guard';
 
 @ApiTags('Account')
 @Controller('account')
@@ -15,6 +15,7 @@ export class AccountController {
   @HttpCode(201)
   @ApiOperation({ summary: 'Handle account actions' })
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Account creation job created successfully' })
+  @UseGuards(TokenGuard)
   async handleAccount(@Body() account: AccountDTO): Promise<any> {
     return await this.accountService.create(account);
   }

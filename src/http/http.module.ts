@@ -9,7 +9,7 @@ const juvHostInstance = axios.create({
     'Content-Type': 'application/json',
   },
   httpsAgent: new Agent({
-    rejectUnauthorized: false,
+    // rejectUnauthorized defaults to true; remove or set explicitly
   }),
 });
 

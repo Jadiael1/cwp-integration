@@ -1,21 +1,33 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import type { Request } from 'express';
+
+interface TokenRequestBody {
+  key?: string;
+}
+
+type TokenRequest = Request<any, any, TokenRequestBody>;
 
 @Injectable()
 export class TokenGuard implements CanActivate {
   constructor(private readonly configService: ConfigService) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<TokenRequest>();
 
-    // Se a requisição não tiver corpo ou não possuir a chave 'key'
-    if (!request.body || !request.body.key) {
+    const key: string | undefined = request.body?.key;
+    if (!key) {
       throw new UnauthorizedException('Token not provided');
     }
 
-    // Verifica se o token recebido (em request.body.key) é igual ao token definido no .env
     const apiToken = this.configService.get<string>('API_TOKEN');
-    if (request.body.key !== apiToken) {
+
+    if (!apiToken || key !== apiToken) {
       throw new UnauthorizedException('Invalid token');
     }
 

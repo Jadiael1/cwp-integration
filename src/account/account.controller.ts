@@ -1,7 +1,17 @@
-import { Controller, Post, Body, Query, HttpCode, Get, HttpStatus, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Query,
+  HttpCode,
+  Get,
+  HttpStatus,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { AccountService } from '@services/account.service';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { JobDTO, JobFilterType, JobStatus, JobReturnType } from '@dtos/job.dto';
 import { AccountDTO } from '@dtos/account.dto';
 import { TokenGuard } from '@common/guards/token.guard';
@@ -14,7 +24,10 @@ export class AccountController {
   @Post()
   @HttpCode(201)
   @ApiOperation({ summary: 'Handle account actions' })
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'Account creation job created successfully' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Account creation job created successfully',
+  })
   @UseGuards(TokenGuard)
   async handleAccount(@Body() account: AccountDTO): Promise<any> {
     return await this.accountService.create(account);
@@ -53,15 +66,18 @@ export class AccountController {
   })
   async exportJobs(@Query() query: JobDTO, @Res() res: Response): Promise<any> {
     const jobs = await this.accountService.getJobs(query);
-    const buffer = await this.accountService.treatJobs(jobs, query);
-    const fileName = `jobs-user-${new Date().getTime()}`;
     if (query.returnType !== JobReturnType.XLSX) {
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
       res.send(jobs);
+      return;
     }
+    const buffer = await this.accountService.treatJobs(jobs, query);
+    const fileName = `jobs-user-${new Date().getTime()}`;
+
     res.set({
       'Content-Disposition': `attachment; filename=${fileName}.xlsx`,
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
     res.send(buffer);
   }

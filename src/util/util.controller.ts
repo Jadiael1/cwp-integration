@@ -1,4 +1,12 @@
-import { Controller, Get, Body, HttpCode, NotFoundException, Param, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  HttpCode,
+  NotFoundException,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SetKeyValueDto } from '@dtos/set-key-value.dto';
 import { GetKeyValueDto } from '@dtos/get-key-value.dto';
@@ -28,7 +36,10 @@ export class UtilController {
   })
   @ApiResponse({ status: 500, description: 'Internal Server Error.' })
   async setKeyValue(@Body() keyValueDto: SetKeyValueDto) {
-    return await this.utilService.setKeyValue(keyValueDto.key, keyValueDto.value);
+    return await this.utilService.setKeyValue(
+      keyValueDto.key,
+      keyValueDto.value,
+    );
   }
 
   @Get('get-redis/:key')

@@ -1,17 +1,22 @@
 import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { v4 as uuid } from 'uuid';
+
+type AppRequest = Request<any, any, unknown> & {
+  id?: string;
+};
 
 @Injectable()
 export class RequestLoggerMiddleware implements NestMiddleware {
-  private startlogger = new Logger('Start');
-  private endLogger = new Logger('End');
+  private readonly startLogger = new Logger('Start');
+  private readonly endLogger = new Logger('End');
 
-  use(req: Request, res: Response, next: NextFunction) {
+  use(req: AppRequest, res: Response, next: NextFunction): void {
     const id = uuid();
-    req['id'] = id;
+    req.id = id;
 
     const { method, originalUrl, body } = req;
+
     let logMessage = `${id} ${method} ${originalUrl}`;
 
     const formattedBody = JSON.stringify(body, null, 4);
@@ -19,7 +24,7 @@ export class RequestLoggerMiddleware implements NestMiddleware {
       logMessage += `\n${formattedBody}`;
     }
 
-    this.startlogger.log(logMessage);
+    this.startLogger.log(logMessage);
 
     res.on('finish', () => {
       const { statusCode } = res;

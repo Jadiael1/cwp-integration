@@ -1,16 +1,30 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
+
+type ErrorResponse = Record<string, unknown>;
+
+interface RequestWithId extends Request {
+  id?: string;
+}
 
 @Catch()
 export class ExceptionLoggerFilter implements ExceptionFilter {
-  private logger = new Logger('Exception');
+  private readonly logger = new Logger('Exception');
 
-  catch(exception: any, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
-    const req = ctx.getRequest<Request>();
+    const req = ctx.getRequest<RequestWithId>();
     const res = ctx.getResponse<Response>();
 
-    const { statusCode, errorResponse } = this.getExceptionAttributes(exception);
+    const { statusCode, errorResponse } =
+      this.getExceptionAttributes(exception);
     const logMessage = this.getLogMessage(req, exception);
 
     this.logger.error(logMessage);
@@ -18,36 +32,82 @@ export class ExceptionLoggerFilter implements ExceptionFilter {
     res.status(statusCode).json(errorResponse);
   }
 
-  private getLogMessage(req: Request, exception: any): string {
-    const isHttp = this.isHttpException(exception);
+  private getLogMessage(req: RequestWithId, exception: unknown): string {
     const { originalUrl, method } = req;
-    const id = req['id'];
-    const { statusCode, errorResponse, stack } = this.getExceptionAttributes(exception);
+    const id = req.id ?? 'unknown-id';
+
+    const { statusCode, errorResponse, isHttpException, stack } =
+      this.getExceptionAttributes(exception);
 
     let logMessage = `${id} ${method} ${originalUrl} ${statusCode}`;
 
-    if (isHttp && errorResponse) {
+    if (isHttpException && errorResponse) {
       logMessage += `\n${JSON.stringify(errorResponse, null, 2)}`;
     }
 
-    if (!isHttp) {
+    if (!isHttpException && stack) {
       logMessage += `\n${stack}`;
     }
 
     return logMessage;
   }
 
-  private isHttpException(exception: any): boolean {
+  private isHttpException(exception: unknown): exception is HttpException {
     return exception instanceof HttpException;
   }
 
-  private getExceptionAttributes(exception: any): { statusCode: number; stack: any; errorResponse: boolean } {
-    const isHttp = this.isHttpException(exception);
-    const statusCode = isHttp ? exception.getStatus() : 500;
-    const errorResponse = isHttp
-      ? exception.response.message
-      : { platform: 'unknown', message: 'Something went worng' };
-    const stack = exception.stack;
-    return { statusCode, stack, errorResponse };
+  private getExceptionAttributes(exception: unknown): {
+    statusCode: number;
+    stack?: string;
+    errorResponse: ErrorResponse;
+    isHttpException: boolean;
+  } {
+    if (this.isHttpException(exception)) {
+      const statusCode = exception.getStatus();
+
+      const response = exception.getResponse();
+      let errorResponse: ErrorResponse;
+
+      if (typeof response === 'string') {
+        errorResponse = { message: response };
+      } else if (response && typeof response === 'object') {
+        errorResponse = response as ErrorResponse;
+      } else {
+        errorResponse = { message: 'Unknown error response' };
+      }
+
+      const stack = exception.stack;
+
+      return {
+        statusCode,
+        stack,
+        errorResponse,
+        isHttpException: true,
+      };
+    }
+
+    const statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+
+    let stack: string | undefined;
+    let message = 'Something went wrong';
+
+    if (exception instanceof Error) {
+      stack = exception.stack;
+      if (exception.message) {
+        message = exception.message;
+      }
+    }
+
+    const errorResponse: ErrorResponse = {
+      platform: 'unknown',
+      message,
+    };
+
+    return {
+      statusCode,
+      stack,
+      errorResponse,
+      isHttpException: false,
+    };
   }
 }

@@ -3,10 +3,21 @@
     // "[typescript]": {
     //     "editor.defaultFormatter": "vscode.typescript-language-features"
     // },
-    "jest.autoRun": {
-        "watch": false
-    },
+    "jest.runMode": "on-demand",
     "yaml.schemas": {
         "https://json.schemastore.org/github-workflow.json": ".github\\workflows\\deploy.yml"
-    }
+    },
+    "gitingest.maxFileSize": 1024,
+    "gitingest.ignorePatterns":[
+        ".git/",
+        "node_modules/",
+        ".vscode/",
+        "package-lock.json",
+        ".editorconfig",
+        ".env.dev",
+        ".env.prod",
+        "dist/",
+        "test/",
+        "README.md"
+    ]
 }

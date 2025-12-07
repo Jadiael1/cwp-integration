@@ -1,20 +1,12 @@
 import { Module } from '@nestjs/common';
 import { UtilController } from '@controllers/util.controller';
 import { UtilService } from '@services/util.service';
-import { RedisModule } from '@nestjs-modules/ioredis';
-import { ConfigService } from '@nestjs/config';
+import { redisProvider } from '@providers/redis.provider';
 
 @Module({
-  imports: [
-    RedisModule.forRootAsync({
-      useFactory: (configService: ConfigService) => ({
-        type: 'single',
-        url: configService.get<string>('REDIS_URL'),
-      }),
-      inject: [ConfigService],
-    }),
-  ],
+  imports: [],
   controllers: [UtilController],
-  providers: [UtilService],
+  providers: [UtilService, redisProvider],
+  exports: [redisProvider],
 })
 export class UtilModule {}

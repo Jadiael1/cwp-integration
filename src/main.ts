@@ -15,7 +15,10 @@ async function bootstrap() {
   startSwagger(app);
 
   await app.listen(port);
-  Logger.log(`Server running on ${await app.getUrl()} - ${process.env.NODE_ENV}`, `Bootstrap`);
+  Logger.log(
+    `Server running on ${await app.getUrl()} - ${process.env.NODE_ENV ?? 'unknown'}`,
+    `Bootstrap`,
+  );
 }
 
 function startSwagger(app: INestApplication) {
@@ -31,4 +34,7 @@ function startSwagger(app: INestApplication) {
   SwaggerModule.setup('/', app, document);
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+  Logger.error(err, 'Bootstrap');
+  process.exit(1);
+});

@@ -1,27 +1,31 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
+import { Inject, Injectable } from '@nestjs/common';
+import type { RedisClient } from '@providers/redis.provider';
+import { REDIS_CLIENT } from '@providers/redis.provider';
+
 @Injectable()
 export class UtilService {
-  constructor(@InjectRedis() private readonly redis: Redis) {}
+  constructor(
+    @Inject(REDIS_CLIENT)
+    private readonly redis: RedisClient,
+  ) {}
 
-  getEnvironment() {
+  getEnvironment(): { env: string | undefined } {
     return { env: process.env.NODE_ENV };
   }
 
-  getHealth() {
+  getHealth(): { health: string } {
     return { health: 'Healthy' };
   }
 
   async setKeyValue(key: string, value: string): Promise<string> {
-    return await this.redis.set(key, value);
+    return this.redis.set(key, value);
   }
 
-  async getKeyValue(key: string): Promise<string> {
-    return await this.redis.get(key);
+  async getKeyValue(key: string): Promise<string | null> {
+    return this.redis.get(key);
   }
 
-  getNodeVersion() {
+  getNodeVersion(): { node_version: string } {
     return { node_version: process.version };
   }
 }

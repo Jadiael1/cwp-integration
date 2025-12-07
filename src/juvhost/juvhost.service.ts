@@ -1,21 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { JuvHostHttpService } from '@services/juvhost-http.service';
 import { SimpleResponse } from '@interfaces/simple-response.interface';
-import { Job, tryCatch } from 'bullmq';
+import { Job } from 'bullmq';
 import { ResponseManagerService } from '@services/response-manager.service';
+import { AccountDTO } from '@dtos/account.dto';
+
+interface CreateAccountJobData {
+  account: AccountDTO;
+}
 
 @Injectable()
 export class JuvHostService {
   constructor(
-    private juvHostHttp: JuvHostHttpService,
-    private resManager: ResponseManagerService,
+    private readonly juvHostHttp: JuvHostHttpService,
+    private readonly resManager: ResponseManagerService,
   ) {}
 
-  async createAccount(job: Job<any>): Promise<SimpleResponse[]> {
+  async createAccount(
+    job: Job<CreateAccountJobData>,
+  ): Promise<SimpleResponse[]> {
     const { account } = job.data;
-    const promises: Promise<SimpleResponse>[] = [];
-    promises.push(this.juvHostHttp.createAccount(account));
+
+    const promises: Promise<SimpleResponse>[] = [
+      this.juvHostHttp.createAccount(account),
+    ];
+
     const resolution = await Promise.allSettled(promises);
+
     return this.resManager.processPromisesResult(resolution);
   }
 }

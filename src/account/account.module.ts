@@ -21,6 +21,10 @@ import { BullMQEventsListenerAccount } from '../bullMQ/account/bullMQ.eventsList
     }),
     JuvHostModule,
   ],
-  providers: [AccountService, BullMQProcessorAccount, BullMQEventsListenerAccount],
+  providers: [
+    AccountService,
+    BullMQProcessorAccount,
+    BullMQEventsListenerAccount,
+  ],
 })
 export class AccountModule {}

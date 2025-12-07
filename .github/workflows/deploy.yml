@@ -1,0 +1,88 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Create environment files
+        run: |
+          printf "%s" "${{ secrets.ENV_DEV }}" > .env.dev
+          printf "%s" "${{ secrets.ENV_PROD }}" > .env.prod
+
+      - name: Build Application
+        run: CI=false npm run build
+
+      - name: Install production dependencies only
+        run: |
+          rm -rf node_modules
+          npm ci --omit=dev
+
+      - name: Zip node_modules
+        run: |
+          zip -r node_modules.zip node_modules
+          rm -rf node_modules
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_KEY }}
+
+      - name: Add VPS host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Clean VPS directory
+        run: |
+          ssh -p ${{ secrets.VPS_PORT }} \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
+            "rm -rf ${{ secrets.VPS_APP_DIR }}/node_modules; \
+             find ${{ secrets.VPS_APP_DIR }} -ignore_readdir_race \
+               -not -name '.env' \
+               -not -name '.env.dev' \
+               -not -name '.env.prod' \
+               -mindepth 1 -exec rm -rf {} + || true"
+
+      - name: Copy build artifacts to VPS
+        run: |
+          scp -P ${{ secrets.VPS_PORT }} -r \
+            dist \
+            package.json \
+            package-lock.json \
+            .env.dev \
+            .env.prod \
+            node_modules.zip \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_APP_DIR }}/
+
+      - name: Finalize deployment on VPS
+        run: |
+          ssh -p ${{ secrets.VPS_PORT }} \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
+            "set -e
+             cd \"${{ secrets.VPS_APP_DIR }}\"
+             if [ -d dist ]; then
+               mv dist/* . || true
+               rm -rf dist
+             fi
+             if [ -f node_modules.zip ]; then
+               unzip -q node_modules.zip
+               rm node_modules.zip
+             fi"
